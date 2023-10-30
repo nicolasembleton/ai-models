@@ -1,0 +1,65 @@
+name: "codellama-phind-34b-v2"
+backend: exllama
+description: |
+  https://huggingface.co/Phind/Phind-CodeLlama-34B-v2
+license: "https://ai.meta.com/llama/license/"
+urls:
+  - https://ai.meta.com/llama/
+  - https://huggingface.co/Phind/Phind-CodeLlama-34B-v2
+  - https://huggingface.co/TheBloke/Phind-CodeLlama-34B-v2-GPTQ
+
+config_file: |
+  parameters:
+    model: model.safetensors
+    top_k: 80
+    temperature: 0.6
+    top_p: 0.7
+  context_size: 8192
+  template:
+    chat_message: codellama-chat-message
+    completion: codellama-completion    
+  gpu_layers: 48
+  mmap: true
+  f16: true
+
+files:
+  - filename: "model.safetensors"
+    sha256: "627b10681ac99b3cccb9d4562fb9e0cb1856306fee2d4034fcf997bfb665563d"
+    uri: "https://huggingface.co/TheBloke/Phind-CodeLlama-34B-v2-GPTQ/resolve/gptq-4bit-32g-actorder_True/model.safetensors"
+
+prompt_templates:
+  - name: "codellama-chat-message-templ"
+    content: |
+      {{if eq .RoleName "assistant"}}
+      ### Assistant
+      {{.Content}}
+      {{else}}
+      {{if eq .RoleName "system"}}
+      ### System Prompt
+      {{.Content}}
+      {{else if and (.SystemPrompt) (eq .MessageIndex 0)}}
+      ### System Prompt
+      {{.SystemPrompt}}
+      {{end}}
+      {{if .Content}}{{.Content}}{{end}}
+      {{end}}
+  - name: "codellama-chat-message"
+    content: |
+      ### System Prompt
+      {{.SystemPrompt}}
+    
+      ### User Message
+      {{.Input}}
+      
+      ### Assistant
+      {{.Content}}
+  - name: "codellama-completion"
+    content: |
+      ### System Prompt
+      {{.SystemPrompt}}
+    
+      ### User Message
+      {{.Input}}
+      
+      ### Assistant
+      {{.Content}}
